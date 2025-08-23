@@ -17,7 +17,7 @@ def connect_to_3dcitydb():
 
 conn = connect_to_3dcitydb()
 
-cur = connect_to_3dcitydb().cursor()
+cur = conn.cursor()
 
 with open(f"{SQL_DIR}\\calculate_roof_area_query.sql", "r", encoding="utf-8") as f:
     sql = f.read()

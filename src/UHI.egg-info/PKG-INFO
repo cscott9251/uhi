@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: UHI
+Version: 1.0
+Summary: A useful module
+Author: Man Foo
+Author-email: foomail@foo.example
+Dynamic: author
+Dynamic: author-email
+Dynamic: summary

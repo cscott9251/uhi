@@ -1,0 +1,12 @@
+setup.py
+src/UHI/Geodaten_Bayern_downloads.py
+src/UHI/Preproc.py
+src/UHI/__init__.py
+src/UHI/config.py
+src/UHI/gridgen.py
+src/UHI/main.py
+src/UHI/pyqgis_init.py
+src/UHI.egg-info/PKG-INFO
+src/UHI.egg-info/SOURCES.txt
+src/UHI.egg-info/dependency_links.txt
+src/UHI.egg-info/top_level.txt
