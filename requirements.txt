@@ -1,0 +1,13 @@
+UHI~=1.0
+geopandas~=1.0.1
+numpy~=1.26.4
+shapely~=2.0.6
+PyQt5~=5.15.11
+requests~=2.31.0
+wget~=3.2
+beautifulsoup4~=4.12.3
+setuptools~=75.8.0
+ee~=0.2
+earthengine-api~=1.5.22
+geemap~=0.35.3
+rioxarray~=0.19.0
