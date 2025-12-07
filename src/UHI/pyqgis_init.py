@@ -2,7 +2,6 @@ import os
 import sys
 import importlib.util
 
-
 QGIS_PREFIX_PATH = os.environ['QGIS_PREFIX_PATH']
 QGIS_PYTHON_PATH = os.environ['PYTHONPATH']
 O4W_QT_PLUGINS = os.environ['O4W_QT_PLUGINS']
@@ -47,8 +46,6 @@ qgs.initQgis()
 project = QgsProject.instance()
 project_path = "C:/Users/chris/OneDrive/GIS_Work/Personal_Projects/UrbanHeatIsland_LST_Prediction_Analysis/UHI.qgz"
 #project.read(project_path)
-
-
 
 
 # Import processing plugin

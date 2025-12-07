@@ -63,6 +63,8 @@ configlist.append(HAUSUMRINGE_SHP_DIR)
 
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
 
+FISHNETS_DATA_DIR = DATA_DIR / "fishnets"
+
 CITY_DB_DIR = PACKAGE_ROOT / "3dcitydb"
 
 CITYDB_SCRIPT_DIR  = CITY_DB_DIR / "postgresql" / "shell-scripts" / "windows"
