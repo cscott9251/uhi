@@ -1,0 +1,1 @@
+docker pull kartoza/postgis:15-3.3
