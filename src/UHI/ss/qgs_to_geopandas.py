@@ -1,7 +1,7 @@
 # src/UHI/qgs_to_geopandas.py
 
 import UHI.config
-from UHI.pyqgis_init import *
+from UHI.pyqgis.pyqgis_init import *
 
 from UHI.config import PROCESSED_DATA_DIR
 

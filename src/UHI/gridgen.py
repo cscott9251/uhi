@@ -1,6 +1,6 @@
 # src/UHI/gridgen.py
 
-from UHI.pyqgis_init import *
+from UHI.pyqgis.pyqgis_init import *
 import geopandas as gpd
 from shapely.geometry import box
 import numpy as np

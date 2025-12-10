@@ -1,7 +1,7 @@
 from UHI.config import *
-from UHI.pyqgis_init import QgsDataSourceUri, QgsVectorFileWriter
+from UHI.pyqgis.pyqgis_init import QgsDataSourceUri, QgsVectorFileWriter
 from UHI.ss.lod2_proc_qgis import strip_fields
-from UHI.pyqgis_init import QgsVectorLayer
+from UHI.pyqgis.pyqgis_init import QgsVectorLayer
 from UHI.citydb_sql_calculate_roof_area import connect_to_3dcitydb
 from UHI.gridgen import generate_grid
 import processing

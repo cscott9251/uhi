@@ -5,18 +5,18 @@ from osgeo import gdal
 
 
 from UHI.config import *
-import UHI.pyqgis_init
-from UHI.pyqgis_init import (qgs, QgsVectorLayer, QgsProcessingFeedback, QgsProject, QgsCoordinateReferenceSystem,
+import UHI.pyqgis.pyqgis_init
+from UHI.pyqgis.pyqgis_init import (qgs, QgsVectorLayer, QgsProcessingFeedback, QgsProject, QgsCoordinateReferenceSystem,
                              QgsVectorFileWriter, project)
 
 from pathlib import Path
-import processing
-import ogr2ogr
-import gdaltools
+# import processing
+# import ogr2ogr
+# import gdaltools
 import os
 import subprocess
 import shutil
-from osgeo import ogr
+#from osgeo import ogr
 import fiona
 import psycopg2
 from sqlalchemy_utils import database_exists, create_database

@@ -1,9 +1,20 @@
 from UHI.config import *
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text
-import geoalchemy2
+#import geoalchemy2
 import pandas as pd
 import geopandas as gpd
+
+
+"""
+This module :
+Queries the Postgres database for the building morphological data (floor area, roof area, building height, building volume), which was calculated for each object.
+Transfers this data into a GeoDataframe using GeoPandas.
+Calculates weighted intersections of objects with reference to the 30m resolution grid (cuts the objects by the grid lines), 
+and then allocates the building metrics to each cell according to its intersection proportion with each cell
+Aggregates / applies 
+"""
+
 
 def create_db_engine():
     """
@@ -17,7 +28,7 @@ def create_db_engine():
 
 def fetch_building_metrics_with_geometry():
     """
-    Fetch building metrics along with their actual geometries from PostGIS
+    Fetch building metrics along with their actual geometries from Postgres database
     """
 
     sql_query = """
@@ -51,95 +62,95 @@ def fetch_building_metrics_with_geometry():
     return building_gdf
 
 
-def calculate_weighted_intersections_postgis(grid_gdf):
-    """
-    Use PostGIS to calculate weighted intersections directly in the database
-    Much more efficient than doing overlay operations in Python
-    """
+# def calculate_weighted_intersections_postgis(grid_gdf):
+#     """
+#     Use PostGIS to calculate weighted intersections directly in the database
+#     Much more efficient than doing overlay operations in Python
+#     """
 
-    print("🔧 Uploading grid to PostGIS for spatial operations...")
+#     print("🔧 Uploading grid to PostGIS for spatial operations...")
 
-    engine = create_db_engine()
+#     engine = create_db_engine()
 
-    # Upload grid to temporary PostGIS table
-    grid_gdf.to_postgis('temp_grid', engine, if_exists='replace', index=False) ### Takes the passed grid_gdf and uploads
-                                                                                ### to PostGIS, so that the below query
-                                                                                ### can reference it
+#     # Upload grid to temporary PostGIS table
+#     grid_gdf.to_postgis('temp_grid', engine, if_exists='replace', index=False) ### Takes the passed grid_gdf and uploads
+#                                                                                 ### to PostGIS, so that the below query
+#                                                                                 ### can reference it
 
-    print("🔧 Calculating weighted intersections using PostGIS...")
+#     print("🔧 Calculating weighted intersections using PostGIS...")
 
-    # Use PostGIS for efficient spatial intersection and area calculations
+#     # Use PostGIS for efficient spatial intersection and area calculations
 
-    sql_query = """
-    WITH weighted_intersections AS (
-        SELECT 
-            b.building_objectid,
-            g.grid_id,
-            b.total_roof_area,
-            b.total_floor_area,
-            b.total_building_volume,
-            -- Calculate intersection geometry and area
-            ST_Intersection(b.geometry, g.geometry) as intersection_geom, -- Returns geometry representing the point-set intersection of two geometries (portion of geometry A and geometry B that is shared) 
-            ST_Area(ST_Intersection(b.geometry, g.geometry)) as intersection_area, -- Returns the area of the intersection between b objects and the grid
-            ST_Area(b.geometry) as total_building_area
-        FROM 
-            (SELECT 
-                bm.building_objectid,
-                bm.total_roof_area,
-                bm.total_floor_area,
-                bm.building_height,
-                bm.total_building_volume,
-                f.envelope as geometry
-             FROM building_metrics bm
-             JOIN citydb.feature f ON f.objectid = bm.building_objectid
-             WHERE bm.building_objectid IS NOT NULL 
-               AND f.envelope IS NOT NULL
-            ) b
-        JOIN 
-            temp_grid g ON ST_Intersects(b.geometry, g.geometry)  -- temp_grid injected into database from grid_gdf param of function
-        WHERE 
-            ST_Area(ST_Intersection(b.geometry, g.geometry)) > 0
-    )
-    SELECT 
-        building_objectid,
-        grid_id,
-        total_roof_area,
-        total_floor_area,
-        total_building_volume,
-        intersection_area,
-        total_building_area,
-        -- Calculate area percentage
-        intersection_area / total_building_area as area_percentage,
-        -- Calculate allocated metrics
-        total_roof_area * (intersection_area / total_building_area) as allocated_roof_area,
-        total_floor_area * (intersection_area / total_building_area) as allocated_floor_area,
-        total_building_volume * (intersection_area / total_building_area) as allocated_volume,
-        ST_Transform(intersection_geom, 25832) as geometry
-    FROM weighted_intersections
-    WHERE intersection_area > 0;
-    """
+#     sql_query = """
+#     WITH weighted_intersections AS (
+#         SELECT 
+#             b.building_objectid,
+#             g.grid_id,
+#             b.total_roof_area,
+#             b.total_floor_area,
+#             b.total_building_volume,
+#             -- Calculate intersection geometry and area
+#             ST_Intersection(b.geometry, g.geometry) as intersection_geom, -- Returns geometry representing the point-set intersection of two geometries (portion of geometry A and geometry B that is shared) 
+#             ST_Area(ST_Intersection(b.geometry, g.geometry)) as intersection_area, -- Returns the area of the intersection between b objects and the grid
+#             ST_Area(b.geometry) as total_building_area
+#         FROM 
+#             (SELECT 
+#                 bm.building_objectid,
+#                 bm.total_roof_area,
+#                 bm.total_floor_area,
+#                 bm.building_height,
+#                 bm.total_building_volume,
+#                 f.envelope as geometry
+#              FROM building_metrics bm
+#              JOIN citydb.feature f ON f.objectid = bm.building_objectid
+#              WHERE bm.building_objectid IS NOT NULL 
+#                AND f.envelope IS NOT NULL
+#             ) b
+#         JOIN 
+#             temp_grid g ON ST_Intersects(b.geometry, g.geometry)  -- temp_grid injected into database from grid_gdf param of function
+#         WHERE 
+#             ST_Area(ST_Intersection(b.geometry, g.geometry)) > 0
+#     )
+#     SELECT 
+#         building_objectid,
+#         grid_id,
+#         total_roof_area,
+#         total_floor_area,
+#         total_building_volume,
+#         intersection_area,
+#         total_building_area,
+#         -- Calculate area percentage
+#         intersection_area / total_building_area as area_percentage,
+#         -- Calculate allocated metrics
+#         total_roof_area * (intersection_area / total_building_area) as allocated_roof_area,
+#         total_floor_area * (intersection_area / total_building_area) as allocated_floor_area,
+#         total_building_volume * (intersection_area / total_building_area) as allocated_volume,
+#         ST_Transform(intersection_geom, 25832) as geometry
+#     FROM weighted_intersections
+#     WHERE intersection_area > 0;
+#     """
 
-    # Execute the spatial query and get results as GeoDataFrame
-    intersections_gdf = gpd.read_postgis(
-        sql_query,
-        engine,
-        geom_col='geometry',
-        crs='EPSG:25832'
-    )
+#     # Execute the spatial query and get results as GeoDataFrame
+#     intersections_gdf = gpd.read_postgis(
+#         sql_query,
+#         engine,
+#         geom_col='geometry',
+#         crs='EPSG:25832'
+#     )
 
-    # Clean up temporary table
+#     # Clean up temporary table
 
-    statement = text("""DROP TABLE IF EXISTS temp_grid""")
+#     statement = text("""DROP TABLE IF EXISTS temp_grid""")
 
-    with engine.connect() as conn:
-        conn.execute(statement)
-        conn.commit()
+#     with engine.connect() as conn:
+#         conn.execute(statement)
+#         conn.commit()
 
-    engine.dispose()
+#     engine.dispose()
 
-    print(f"✅ PostGIS calculated {len(intersections_gdf)} weighted intersections")
+#     print(f"✅ PostGIS calculated {len(intersections_gdf)} weighted intersections")
 
-    return intersections_gdf
+#     return intersections_gdf
 
 # grid_gdf = gpd.read_file(GRID_PATH)
 # engine = create_db_engine()
@@ -148,59 +159,59 @@ def calculate_weighted_intersections_postgis(grid_gdf):
 
 # building_gdf = fetch_building_metrics_with_geometry()
 
-def aggregate_weighted_metrics(intersections_gdf, grid_gdf):
-    """
-    Aggregate the weighted metrics by grid cell
-    """
+# def aggregate_weighted_metrics(intersections_gdf, grid_gdf):
+#     """
+#     Aggregate the weighted metrics by grid cell
+#     """
 
-    print("🔧 Aggregating weighted metrics by grid cell...")
+#     print("🔧 Aggregating weighted metrics by grid cell...")
 
-    # Group by grid_id and sum the allocated metrics
-    grid_aggregates = intersections_gdf.groupby('grid_id').agg({
-        'allocated_roof_area': 'sum',
-        'allocated_floor_area': 'sum',
-        'allocated_volume': 'sum',
-        'allocated_height_weighted': 'sum',
-        'area_percentage': 'sum',  # This shows how much "building coverage" per grid
-        'building_objectid': 'count'  # Number of building intersections (can be > buildings if split)
-    }).reset_index()
+#     # Group by grid_id and sum the allocated metrics
+#     grid_aggregates = intersections_gdf.groupby('grid_id').agg({
+#         'allocated_roof_area': 'sum',
+#         'allocated_floor_area': 'sum',
+#         'allocated_volume': 'sum',
+#         'allocated_height_weighted': 'sum',
+#         'area_percentage': 'sum',  # This shows how much "building coverage" per grid
+#         'building_objectid': 'count'  # Number of building intersections (can be > buildings if split)
+#     }).reset_index()
 
-    # Calculate weighted average height per grid cell
-    grid_aggregates['weighted_avg_height'] = (
-        grid_aggregates['allocated_height_weighted'] / grid_aggregates['area_percentage']
-    ).fillna(0)
+#     # Calculate weighted average height per grid cell
+#     grid_aggregates['weighted_avg_height'] = (
+#         grid_aggregates['allocated_height_weighted'] / grid_aggregates['area_percentage']
+#     ).fillna(0)
 
-    # Rename columns for clarity
-    grid_aggregates = grid_aggregates.rename(columns={
-        'allocated_roof_area': 'grid_weighted_roof_area',
-        'allocated_floor_area': 'grid_weighted_floor_area',
-        'allocated_volume': 'grid_weighted_volume',
-        'area_percentage': 'total_building_coverage',
-        'building_objectid': 'building_intersection_count'
-    })
+#     # Rename columns for clarity
+#     grid_aggregates = grid_aggregates.rename(columns={
+#         'allocated_roof_area': 'grid_weighted_roof_area',
+#         'allocated_floor_area': 'grid_weighted_floor_area',
+#         'allocated_volume': 'grid_weighted_volume',
+#         'area_percentage': 'total_building_coverage',
+#         'building_objectid': 'building_intersection_count'
+#     })
 
-    # Join back to original grid to maintain all grid cells
-    result = grid_gdf.merge(grid_aggregates, on='grid_id', how='left')
+#     # Join back to original grid to maintain all grid cells
+#     result = grid_gdf.merge(grid_aggregates, on='grid_id', how='left')
 
-    # Fill NaN values with 0 for grid cells with no buildings
-    result = result.fillna({
-        'grid_weighted_roof_area': 0,
-        'grid_weighted_floor_area': 0,
-        'grid_weighted_volume': 0,
-        'weighted_avg_height': 0,
-        'total_building_coverage': 0,
-        'building_intersection_count': 0
-    })
+#     # Fill NaN values with 0 for grid cells with no buildings
+#     result = result.fillna({
+#         'grid_weighted_roof_area': 0,
+#         'grid_weighted_floor_area': 0,
+#         'grid_weighted_volume': 0,
+#         'weighted_avg_height': 0,
+#         'total_building_coverage': 0,
+#         'building_intersection_count': 0
+#     })
 
-    print(f"✅ Aggregated to {len(result)} grid cells")
-    print(f"   Grid cells with buildings: {(result['building_intersection_count'] > 0).sum()}")
+#     print(f"✅ Aggregated to {len(result)} grid cells")
+#     print(f"   Grid cells with buildings: {(result['building_intersection_count'] > 0).sum()}")
 
-    return result
+#     return result
 
 def create_aggregated_building_metrics_table(grid_gdf):
     """
     Create aggregated_building_metrics table in PostGIS with grid_id as primary key
-    Sums all building metrics by grid cell
+    Sums all building metrics (which were previously calculated by object) by grid for each grid cell
     """
 
     print("🔧 Creating aggregated building metrics table in PostGIS...")

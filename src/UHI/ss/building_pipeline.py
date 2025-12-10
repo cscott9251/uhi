@@ -1,4 +1,4 @@
-from UHI.pyqgis_init import QgsVectorLayer, QgsVectorFileWriter
+from UHI.pyqgis.pyqgis_init import QgsVectorLayer, QgsVectorFileWriter
 from UHI.config import *
 import processing
 

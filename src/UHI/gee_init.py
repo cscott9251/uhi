@@ -14,6 +14,8 @@ def gee_init():
 
 
 
+
+
 def upload_shapefile_to_gee(local_shapefile_path, gcs_bucket, asset_id):
     """
     Upload shapefile to GEE using CLI command
@@ -76,5 +78,5 @@ def upload_shapefile_to_gee(local_shapefile_path, gcs_bucket, asset_id):
 
 
 # gee_init()
-#
+# #
 # upload_shapefile_to_gee(BOUNDARY_PATH, "uhiproject", "users/christopherscott925/CoburgGrenze")

@@ -5,7 +5,15 @@ import ee
 import geopandas as gpd
 import numpy as np
 from shapely.geometry import Polygon, shape
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
+
+"""
+Background: this module was created because a previous grid of 100m resolution for the study area was being used
+Upon realising that Landsat resolution is 30m, it was decided that to grab the existing 50m resolution grid for GEE,
+convert it 
+
+"""
+
 
 def gee_featurecollection_to_geodataframe(fc, crs='EPSG:25832'):
     """

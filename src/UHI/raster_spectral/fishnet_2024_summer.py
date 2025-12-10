@@ -1,6 +1,7 @@
 import sys
 
 from UHI.config import *
+from UHI.gee_init import gee_init
 
 import datetime
 import geopandas as gpd
@@ -8,8 +9,16 @@ import numpy as np
 import pandas as pd
 from shapely.geometry import Point, Polygon
 import ee
+from sqlalchemy import create_engine
+from sqlalchemy.sql import text
 
-from UHI.gee_init import gee_init
+"""
+This module samples the GEE rasters at the 30m grid centroids, .
+It samples the values of the spectral indices at the grid cell centroids and then stores them in a GeoDataframe.
+In this way, it achieves the conversion of raster band data to decimal values for analysis.
+"""
+
+# TODO Add logic to push local Postgres raster fishnet
 
 
 def sample_gee_rasters_at_centroids(grid_file_path, gee_raster_dict, output_path, _to_file_driver="GPKG", scale=30, _batch_size=200):
@@ -232,7 +241,7 @@ def sample_summer_2024():
         'NDVI': sentinel_asset.select([0],['NDVI']),      # Band 0
         'NDBI': sentinel_asset.select([1],['NDBI']),      # Band 1
         'MNDWI': sentinel_asset.select([2],['MNDWI']),    # Band 2
-        'EVI': sentinel_asset.select([3],['EVI']),        # Band 3
+        'EVI': sentinel_asset.select([3],['EVI']),        # Band 3  ### Needs to be updated to Landsat
         'NDMI': sentinel_asset.select([4],['NDMI']),      # Band 4
         'LST': landsat_asset.select([0],['LST_Celsius'])          # LST from Landsat asset
     }
@@ -258,6 +267,8 @@ def sample_summer_2024():
                 print(f"{col}: {len(valid_data)} valid values, "
                       f"mean={valid_data.mean():.3f}, "
                       f"range=[{valid_data.min():.3f}, {valid_data.max():.3f}]")
+                
+    
 
     return result
 
@@ -269,8 +280,8 @@ def sample_winter_2021(grid_path, scale=30):
 
 
     # Using the asset from your screenshot
-    sentinel_asset = ee.Image('users/christopherscott925/raster/Sentinel2_2021_Winter_Coburg_EPSG25832')
-    landsat_asset = ee.Image('users/christopherscott925/raster/Landsat_2021_Winter_Coburg_EPSG25832')
+    sentinel_asset = ee.Image('users/christopherscott925/raster_masked/Sentinel2_2021_Winter_Coburg_EPSG25832_Masked')
+    landsat_asset = ee.Image('users/christopherscott925/raster_masked/Landsat_2021_Winter_Coburg_EPSG25832_Masked')
 
     gee_rasters = {
         'NDVI': sentinel_asset.select([0],['NDVI']),      # Band 0
@@ -291,14 +302,61 @@ def sample_winter_2021(grid_path, scale=30):
         scale=scale
     )
 
+
+
+    print(f"\nSummary for {len(result)} grid cells:")
+    for col in ['NDVI', 'NDBI', 'MNDWI', 'EVI', 'NDMI', 'LST']:
+        if col in result.columns:
+            valid_data = result[col].dropna()
+            if len(valid_data) > 0:
+                print(f"{col}: {len(valid_data)} valid values, "
+                      f"mean={valid_data.mean():.3f}, "
+                      f"range=[{valid_data.min():.3f}, {valid_data.max():.3f}]")
+
+    print(result.head())
+
     return result
+
+
+
+
+def create_db_engine():
+    """
+    Create SQLAlchemy engine for database connection
+    """
+    connection_string = "postgresql://postgres:1234@localhost:5432/uhi"
+    engine = create_engine(connection_string)
+
+    return engine
+
+
+def load_fishnet_to_postgres(fishnet_gdf):
+
+    engine = create_db_engine()
+    print("Loading fishnet into local Postgres...")
+    fishnet_gdf.to_postgis(
+        'winter2021_test',
+        engine,
+        if_exists='replace',
+        index=False
+    )
+    print("Complete...")
+
+
+
 
 if __name__ == "__main__":
 
     gee_init()
 
     # Run the sampling
-    fishnet_result = sample_summer_2024()
+    #fishnet_result = sample_summer_2024()
+    #fishnet_result = sample_winter_2021(GRID_30M_PATH)
+    #fishnet_result=gpd.read_file(DATA_DIR / "fishnets" / "coburg_fishnet_winter_2021_20251210_175836.gpkg")
+    load_fishnet_to_postgres(fishnet_result)
+
+
+
 
 # gee_init()
 #
