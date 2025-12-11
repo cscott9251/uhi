@@ -129,5 +129,5 @@ The EVI formula is **fundamentally unsuitable for winter conditions** with snow/
 - Increase the degree of automation.
 - Link up / streamline / rationalise different pipelines, for example pushing the local Postgres database containing the input variables straight to Google Cloud in a customised Docker image.
 - Change raster sampling pipeline so that instead of saving to a file, it pushes straight to the Google Cloud Postgres database which is already linked to CARTO.
-- 
+- Transfer the GEE scripts, currently saved to the GEE code editor on the cloud, into modules within the tool which then make API calls (using earthengine-api Python library) to GEE and POST the scripts, and then recieve the resulting rasters into memory, savng them into a dict, as sepearate files, or simply samping the rasters directly without any need to store files.
 
