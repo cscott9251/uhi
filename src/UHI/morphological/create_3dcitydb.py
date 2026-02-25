@@ -6,8 +6,8 @@ from osgeo import gdal
 
 from UHI.config import *
 import UHI.pyqgis.pyqgis_init
-from UHI.pyqgis.pyqgis_init import (qgs, QgsVectorLayer, QgsProcessingFeedback, QgsProject, QgsCoordinateReferenceSystem,
-                             QgsVectorFileWriter, project)
+#from UHI.pyqgis.pyqgis_init import (qgs, QgsVectorLayer, QgsProcessingFeedback, QgsProject, QgsCoordinateReferenceSystem,
+#                             QgsVectorFileWriter, project)
 
 from pathlib import Path
 # import processing
