@@ -15,15 +15,20 @@ def connect_to_3dcitydb():
 
     return conn
 
-conn = connect_to_3dcitydb()
+def roof_area():
 
-cur = conn.cursor()
+    conn = connect_to_3dcitydb()
 
-with open(f"{SQL_DIR}\\calculate_roof_area_query.sql", "r", encoding="utf-8") as f:
-    sql = f.read()
+    cur = conn.cursor()
 
-cur.execute(sql)
+    with open(f"{SQL_DIR}/calculate_roof_area_query.sql", "r", encoding="utf-8") as f:
+        sql = f.read()
 
-conn.commit()
+    cur.execute(sql)
 
-cur.close()
+    conn.commit()
+
+    print(f"Roof area per building table added to {PGCITYDB}!")
+
+    cur.close()
+    conn.close()

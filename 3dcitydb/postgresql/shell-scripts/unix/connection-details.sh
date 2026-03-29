@@ -1,8 +1,5 @@
-#!/bin/bash
-# Provide your database details here ------------------------------------------
-export PGBIN=path_to_psql
-export PGHOST=your_host_address
-export PGPORT=5432
-export CITYDB=your_database
-export PGUSER=your_username
-#------------------------------------------------------------------------------
+set PGBIN=\usr\lib\postgresql\15\bin\
+set PGHOST=localhost
+set PGPORT=5432
+set CITYDB=uhi_test
+set PGUSER=citydb_user

@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS roof_area_per_building_30m;
+
 -- Create a new table with the aggregated roof area per building
 CREATE TABLE roof_area_per_building_30m AS
 SELECT
@@ -11,7 +13,7 @@ WHERE
   f.objectclass_id = 712
   AND p.name = 'Flaeche'
 GROUP BY
-   building_objectid
+   building_objectid;
 
 -- Add primary key constraint on building_objectid
 --ALTER TABLE roof_area_per_building_30m

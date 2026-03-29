@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS height_per_building_30m;
+
 create table height_per_building_30m as
 SELECT 
     f.objectid AS building_objectid,

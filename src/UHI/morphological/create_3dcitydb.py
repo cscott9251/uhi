@@ -5,7 +5,7 @@ from osgeo import gdal
 
 
 from UHI.config import *
-import UHI.pyqgis.pyqgis_init
+#import UHI.pyqgis.pyqgis_init
 #from UHI.pyqgis.pyqgis_init import (qgs, QgsVectorLayer, QgsProcessingFeedback, QgsProject, QgsCoordinateReferenceSystem,
 #                             QgsVectorFileWriter, project)
 
@@ -56,57 +56,61 @@ import sqlite3
 
 # Create postgres database
 
-engine = create_engine(f'postgresql+psycopg2://{PGCITYDBUSER}:{PGCITYDBUSER_PASSWORD}@{PGHOST}/{PGCITYDB}')
-psql_string = f"postgresql://{PGADMIN}:{PGCITYDBUSER_PASSWORD}@{PGHOST}:5432/{PGCITYDB}"
+def create_3dcitydb():
 
-if not database_exists(engine.url):
-    print(f"[INFO] Database {PGCITYDB} does not exist, creating it with the following parameters:\n")
-    print(f"[INFO] Owner: {PGCITYDBUSER}")
-    print(f"[INFO] Password: 1234")
-    print(f"[INFO] Host: {PGHOST}")
+    engine = create_engine(f'postgresql+psycopg2://{PGCITYDBUSER}:{PGCITYDBUSER_PASSWORD}@{PGHOST}/{PGCITYDB}')
+    psql_string = f"postgresql://{PGADMIN}:{PGCITYDBUSER_PASSWORD}@{PGHOST}:5432/{PGCITYDB}"
 
-
-
-    subprocess.run([
-        "psql",
-        "-U", PGADMIN,
-        "-c", f"CREATE USER {PGCITYDBUSER} PASSWORD '{PGCITYDBUSER_PASSWORD}'"
-    ], check=True, text=True)
-
-    subprocess.run([
-        "psql",
-        "-U", PGADMIN,
-        "-c", f"CREATE DATABASE {PGCITYDB} OWNER {PGCITYDBUSER}"
-    ], check=True)
-
-    subprocess.run([
-        "psql", psql_string,
-        "-c", f"CREATE EXTENSION postgis;"
-    ], check=True)
-
-    subprocess.run([
-        "psql", psql_string,
-        "-c", f"CREATE EXTENSION postgis_sfcgal;"
-    ], check=True)
+    if not database_exists(engine.url):
+        print(f"[INFO] Database {PGCITYDB} does not exist, creating it with the following parameters:\n")
+        print(f"[INFO] Owner: {PGCITYDBUSER}")
+        print(f"[INFO] Password: 1234")
+        print(f"[INFO] Host: {PGHOST}")
 
 
-    with open(F"{CITYDB_SCRIPT_DIR}/connection-details_pycharmtest.bat", "w") as f:
-        f.write("set PGBIN=C:\\Program Files\\PostgreSQL\\17\\bin\\\n"
-                f"set PGHOST={PGHOST}\n"
-                f"set PGPORT=5432\n"
-                f"set CITYDB={PGCITYDB}\n"
-                f"set PGUSER={PGCITYDBUSER}\n")
 
-    print("Done creating database and setting connection details")
+        subprocess.run([
+            "psql",
+            "-U", PGADMIN,
+            "-c", f"CREATE USER {PGCITYDBUSER} PASSWORD '{PGCITYDBUSER_PASSWORD}'"
+        ], check=True, text=True)
 
-elif database_exists(engine.url):
+        subprocess.run([
+            "psql",
+            "-U", PGADMIN,
+            "-c", f"CREATE DATABASE {PGCITYDB} OWNER {PGADMIN}"
+        ], check=True)
 
-    subprocess.run([
-        "psql", psql_string,
-        "-v", "srid=25832",
-        "-v", "srs_name=urn:adv:crs:ETRS89_UTM32*DE_DHHN2016_NH",
-        "-v", "changelog=YES",
-        "-v", f"DBNAME={PGCITYDB}",
-        "-f", str(CITY_DB_SQL_DIR / "create-db.sql")
-    ], check=True)
+        subprocess.run([
+            "psql", psql_string,
+            "-c", f"CREATE EXTENSION postgis;"
+        ], check=True)
+
+        subprocess.run([
+            "psql", psql_string,
+            "-c", f"CREATE EXTENSION postgis_sfcgal;"
+        ], check=True)
+
+
+
+
+        with open(F"{CITYDB_SCRIPT_DIR}/connection-details.sh", "w") as f:
+            f.write("set PGBIN=\\usr\\lib\\postgresql\\15\\bin\\\n"            # Add logic to read psql path from system
+                    f"set PGHOST={PGHOST}\n"
+                    f"set PGPORT=5432\n"
+                    f"set CITYDB={PGCITYDB}\n"
+                    f"set PGUSER={PGCITYDBUSER}\n")
+
+        print("Done creating database and setting connection details")
+
+    elif database_exists(engine.url):
+
+        subprocess.run([
+            "psql", psql_string,
+            "-v", "srid=25832",
+            "-v", "srs_name=urn:adv:crs:ETRS89_UTM32*DE_DHHN2016_NH",
+            "-v", "changelog=YES",
+            "-v", f"DBNAME={PGCITYDB}",
+            "-f", str(CITY_DB_SQL_DIR / "create-db.sql")
+        ], check=True)
 

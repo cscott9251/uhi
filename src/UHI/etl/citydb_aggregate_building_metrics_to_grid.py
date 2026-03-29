@@ -4,6 +4,7 @@ from sqlalchemy.sql import text
 #import geoalchemy2
 import pandas as pd
 import geopandas as gpd
+from datetime import datetime
 
 
 """
@@ -241,7 +242,7 @@ def create_aggregated_building_metrics_table(grid_gdf):
             ST_Area(ST_Intersection(f.envelope, g.geometry)) as intersection_area,
             ST_Area(f.envelope) as total_building_area
         FROM 
-            citydb.building_metrics bm
+            citydb.building_metrics_30m bm
         JOIN 
             citydb.feature f ON f.objectid = bm.building_objectid 
                              AND f.objectclass_id = 901  -- CRITICAL: Only join to Building features!
@@ -366,8 +367,11 @@ def run_aggregated_metrics_pipeline(grid_path, output_dir):
     grid_result = grid_gdf.merge(aggregated_df, on='grid_id', how='left')
 
     # Step 4: Save results
-    output_gpkg = f"{output_dir}/aggregated_building_metrics_30m.gpkg"
-    output_json = f"{output_dir}/aggregated_building_metrics_30m.json"
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    output_gpkg = f"{output_dir}/aggregated_building_metrics_30m_{timestamp}.gpkg"
+    output_json = f"{output_dir}/aggregated_building_metrics_30m_{timestamp}.json"
 
     grid_result.to_file(output_gpkg, driver="GPKG")
     grid_result.to_file(output_json, driver="GeoJSON")
@@ -517,9 +521,9 @@ def run_aggregated_metrics_pipeline(grid_path, output_dir):
 #     return sql
 
 
-if __name__ == "__main__":
-    # Create aggregated building metrics table with your existing grid
-    grid_result = run_aggregated_metrics_pipeline(
-        grid_path=GRID_30M_PATH,
-        output_dir=PROCESSED_DATA_DIR
-    )
+# if __name__ == "__main__":
+#     # Create aggregated building metrics table with your existing grid
+#     grid_result = run_aggregated_metrics_pipeline(
+#         grid_path=GRID_30M_PATH,
+#         output_dir=PROCESSED_DATA_DIR
+#     )

@@ -67,7 +67,7 @@ FISHNETS_DATA_DIR = DATA_DIR / "fishnets"
 
 CITY_DB_DIR = PACKAGE_ROOT / "3dcitydb"
 
-CITYDB_SCRIPT_DIR  = CITY_DB_DIR / "postgresql" / "shell-scripts" / "windows"
+CITYDB_SCRIPT_DIR  = CITY_DB_DIR / "postgresql" / "shell-scripts" / "unix"
 
 CITY_DB_SQL_DIR = CITY_DB_DIR / "postgresql" / "sql-scripts"
 
@@ -75,8 +75,10 @@ CITY_TOOL_DIR = CITY_DB_DIR / "citydb-tool"
 
 SQL_DIR = CODE_ROOT / "sql"
 
-PGCITYDB = "citydbtestpycharm"
-PGCITYDBUSER = "citydb_user_testpycharm"
+CITY_TOOL = CITY_TOOL_DIR / "citydb"
+
+PGCITYDB = "uhi_test"
+PGCITYDBUSER = "citydb_user"
 PGCITYDBUSER_PASSWORD = "1234"
 PGADMIN = "postgres"
 PGADMIN_PASSWORD = PGCITYDBUSER_PASSWORD

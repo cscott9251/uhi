@@ -15,17 +15,20 @@ def connect_to_3dcitydb():
 
     return conn
 
-conn = connect_to_3dcitydb()
+def height():
 
-cur = conn.cursor()
+    conn = connect_to_3dcitydb()
 
-with open(f"{SQL_DIR}\\calculate_height_query.sql", "r", encoding="utf-8") as f:
-    sql = f.read()
+    cur = conn.cursor()
 
-cur.execute(sql)
+    with open(f"{SQL_DIR}/calculate_height_query.sql", "r", encoding="utf-8") as f:
+        sql = f.read()
 
-conn.commit()
+    cur.execute(sql)
 
-print("Height per building table added!")
+    conn.commit()
 
-cur.close()
+    print(f"Height per building table added {PGCITYDB}!")
+
+    cur.close()
+    conn.close()

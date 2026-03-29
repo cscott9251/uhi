@@ -15,15 +15,19 @@ def connect_to_3dcitydb():
 
     return conn
 
-conn = connect_to_3dcitydb()
+def total_building_data():
 
-cur = conn.cursor()
+    conn = connect_to_3dcitydb()
 
-with open(f"{SQL_DIR}\\total_building_data_query.sql", "r", encoding="utf-8") as f:
-    sql = f.read()
+    cur = conn.cursor()
 
-cur.execute(sql)
+    with open(f"{SQL_DIR}/total_building_data_query.sql", "r", encoding="utf-8") as f:
+        sql = f.read()
 
-conn.commit()
+    cur.execute(sql)
 
-cur.close()
+    conn.commit()
+
+    print(f"Total building data per building table added to {PGCITYDB}!")
+
+    cur.close()
