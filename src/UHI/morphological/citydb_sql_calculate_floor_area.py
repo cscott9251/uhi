@@ -19,19 +19,20 @@ def floor_area():
 
     conn = connect_to_3dcitydb()
 
-    cur = conn.cursor()
+    # CODEBAR 2026-06-04 NILS HELP - TEST AND IMPLEMENT IN OTHER FUNCTIONS
 
-    with open(f"{SQL_DIR}/calculate_floor_area_query.sql", "r", encoding="utf-8") as f:
-        sql = f.read()
+    with conn.cursor() as cur:
 
-    cur.execute(sql)
+        with open(f"{SQL_DIR}/calculate_floor_area_query.sql", "r", encoding="utf-8") as f:
+            sql = f.read()
 
-    conn.commit()
+        cur.execute(sql)
 
-    print(f"Floor area per building table added to {PGCITYDB}!")
+        conn.commit()
 
-    cur.close()
-    conn.close()
+        print(f"Floor area per building table added to {PGCITYDB}!")
+
+        conn.close()
 
 
 
